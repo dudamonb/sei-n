@@ -187,6 +187,53 @@ function operation(){
     }
 
     
+function withdrawAmount(accountName, amount){
+    const accountData = getAccount(accountName)
+    
+        if (!amount) {
+            console.log("Ocorreu um erro, digite um valor numérico!")
+            return withdraw()
+        }
+    
+        accountData.balance = parseFloat(accountData.balance) - parseFloat(amount)
+    
+        fs.writeFileSync(`accounts/${accountName}.json`,
+            JSON.stringify(accountData),
+            function (erro) {
+                console.log(erro)
+            }
+        )
+        console.log(chalk.green(`Saque no valor de R$${amount}, realizado com sucesso!`))
+    }
+    
+    
+    function withdraw(){
+        inquirer.prompt([
+            {
+                name: 'accountName',
+                message: 'Qual o nome da sua conta',
+            }
+        ]).then((answer) => {
+            const accountName = answer['accountName']
+            if (!checkAccount(accountName)) {
+                return withdraw()
+            }
+        
+            inquirer.prompt([
+                {
+                    name: 'amount',
+                    message: 'Digite o valor do saque',
+                },
+            ]).then((answer) => {
+                const amount = answer['amount']
+                withdrawAmount(accountName, amount)
+                operation()
+            }).catch((erro) => console.log(erro))
+    
+        }).catch((erro) => console.log(erro))
+    
+    }
+    
     
 
 
