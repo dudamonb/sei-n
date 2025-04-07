@@ -90,24 +90,9 @@ function operation(){
 
      }
 
-     function checkAccount(accountName){
-        if(!fs.existsSync(`accounts/${accountName}.json`)){
-            console.log(chalk.bgRed.black('Conta inexistente, tente novamente'))
-            return false
+    
 
-        }
-        return true
-     }
-
-     function addAmount(accountName, amount){
-        const accountData = getAccount(accountName)
-
-        if(!amount){
-            console.log(cachedDataVersionTag)
-        }
-     }
-
-     
+       
 
      // criar arquivo para armazenar informação 
 
@@ -131,18 +116,82 @@ function operation(){
 
             }
 
-            .then((answer)=>{
+        ]) .then((answer)=>{
                 const amount = answer['amount']
                 addAmount(accountName,amount)
                 operation()
 
             })
-            .catch((err))
+            .catch((err) => console.log(err))
           
-        ])
+      
 
        }).catch()
 
+       function checkAccount(accountName){
+        if(!fs.existsSync(`accounts/${accountName}.json`)){
+            console.log(chalk.bgRed.black('Conta inexistente, tente novamente'))
+            return false
+
+        }
+        return true
      }
 
-     
+       function addAmount(accountName, amount){
+        const accountData = getAccount(accountName)
+
+        if(!amount){
+            console.log("Ocorreu um erro,digite um valor!")
+            return deposit()
+        }
+        accountData.balance = parseFloat(amount) + parseFloat (accountData.balance)
+
+        fs.writeFileSynic(
+            `acconts/${accountData}`,
+            function(err){
+                console.log(err)
+            },
+        )
+        console.log(chalk.green`Depositar no valor de R$${amount}, realizado com sucesso!`)
+     }
+
+     }
+     function getAccount(accountName){
+        const accountJson = fs.readFileSync(`account/${accountName}.json`,
+        {
+            encoding: 'utf-8',
+            flag:'r'
+        })
+        return JSON.parse(accountJson)
+        
+    }
+
+    function getAccountBalance(){
+        inquirer.prompt([
+        {
+            name:'accountName',
+            message: 'Qual o nome da sua conta',
+
+        }
+    ]).then((answer) => {
+        const accountName = answer [`account`]
+         if(!checkAccount(accountName)){
+            return getAccountBalance
+         }
+         const accountData = getAccount(accountName)
+         console.log(chalk.bgBlue.black(`Olá, o saldo de sua conta é de R$${accountData.balance}`
+         ))
+         operation()
+        }).catch(err => console)
+         
+    }
+
+    
+    
+
+
+
+        
+
+    
+        
